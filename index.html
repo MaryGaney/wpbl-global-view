@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WPBL · Player Map &amp; Stats</title>
+  <title>WPBL - Player Map &amp; Stats</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -139,7 +139,7 @@
       flex-direction: column;
     }
 
-    /* tab panels — use flex-grow so the active panel fills remaining space */
+    /* tab panels - use flex-grow so the active panel fills remaining space */
     .tab-panel { display: none; }
     .tab-panel.active {
       display: flex;
@@ -304,7 +304,11 @@
       flex-shrink: 0;
     }
 
-    .bar-label.short { min-width: 60px; }
+    .bar-label.short {
+        width: 70px;
+        min-width: 65px;
+        text-align: left;
+      }
     .bar-label.xshort { min-width: 36px; }
 
     .bar-track {
@@ -702,7 +706,7 @@
     <div class="stats-page">
       <div class="stats-intro">
         <h2>League Breakdown</h2>
-        <p>Player data across all 4 teams · 2026 inaugural season roster</p>
+        <p>Player data across all 4 teams - 2026 inaugural season roster</p>
       </div>
 
       <div class="chart-grid">
@@ -710,7 +714,7 @@
         <!-- CHART 1: Age distribution dot plot -->
         <div class="chart-card wide">
           <div class="chart-title">Age Distribution by Team</div>
-          <div class="chart-subtitle">Each dot = one player · hover for name · grouped by team</div>
+          <div class="chart-subtitle">Each dot = one player - hover for name - grouped by team</div>
           <div class="chart-area">
             <div class="dot-rows" id="age-dot-rows"></div>
             <div class="dot-axis" id="age-axis"></div>
@@ -730,7 +734,7 @@
         <!-- CHART 3: Position by team -->
         <div class="chart-card">
           <div class="chart-title">Pitchers vs. Position Players</div>
-          <div class="chart-subtitle">By team — pitchers include RHP &amp; LHP</div>
+          <div class="chart-subtitle">By team - pitchers include RHP &amp; LHP</div>
           <div class="chart-area">
             <div class="bar-chart" id="pitcher-chart"></div>
           </div>
@@ -739,7 +743,7 @@
         <!-- CHART 4: Country of origin -->
         <div class="chart-card wide">
           <div class="chart-title">Countries of Origin</div>
-          <div class="chart-subtitle">Block size proportional to player count · color = dominant team</div>
+          <div class="chart-subtitle">Block size proportional to player count - color = dominant team</div>
           <div class="chart-area">
             <div class="country-grid" id="country-grid"></div>
           </div>
@@ -789,11 +793,10 @@
 
 <!-- ── FOOTER ─────────────────────────────────────────────────────── -->
 <footer>
-  <img class="footer-logo"
-       src="https://www.womensprobaseballleague.com/wp-content/uploads/2024/10/WPBL-P-R-500.png"
-       alt="WPBL" onerror="this.style.display='none'" />
-  <span>© 2026 Women's Pro Baseball League</span>
-  <a href="https://www.womensprobaseballleague.com" target="_blank" rel="noopener">womensprobaseballleague.com ↗</a>
+  <span>Built by a fan: this website is unofficial and is not associated with, endorsed by, or affiliated with the WPBL</span>
+  <a href="https://www.womensprobaseballleague.com" target="_blank" rel="noopener">
+    womensprobaseballleague.com ↗
+  </a>
 </footer>
 
 <script>
@@ -956,7 +959,7 @@ function posGroup(pos) {
 
 function avg(arr) {
   const valid = arr.filter(v => v != null);
-  return valid.length ? (valid.reduce((a,b) => a+b, 0) / valid.length).toFixed(1) : '—';
+  return valid.length ? (valid.reduce((a,b) => a+b, 0) / valid.length).toFixed(1) : '-';
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1180,7 +1183,7 @@ function buildAgeDots() {
         // center the dot: shift left by half its pixel width
         dot.style.left = `calc(${xPct}% - ${DOT_PX/2}px)`;
         dot.style.background = color;
-        dot.dataset.label = `${p.name} · ${p.team} · Age ${p.age}`;
+        dot.dataset.label = `${p.name} - ${p.team} - Age ${p.age}`;
 
         // Mouse hover
         dot.addEventListener('mouseenter', e => {
@@ -1189,7 +1192,7 @@ function buildAgeDots() {
         dot.addEventListener('mousemove', e => positionDotTooltip(e.clientX, e.clientY));
         dot.addEventListener('mouseleave', hideDotTooltip);
 
-        // Touch tap — toggle tooltip
+        // Touch tap - toggle tooltip
         dot.addEventListener('touchend', e => {
           e.preventDefault();
           const t = e.changedTouches[0];
@@ -1237,7 +1240,7 @@ function buildAgeDots() {
 // ── 2. Position breakdown ─────────────────────────────────────
 function buildPositionChart() {
   const groups = ['Pitcher','Catcher','Infielder','Outfielder','Other'];
-  const colors = { Pitcher:'#c8a44a', Catcher:'#268040', Infielder:'#475da9', Outfielder:'#299598', Other:'#aaa' };
+  const colors = { Pitcher:'#e32947', Catcher:'#e32947', Infielder:'#e32947', Outfielder:'#e32947', Other:'#aaa' };
   const counts = {};
   groups.forEach(g => counts[g] = 0);
   PLAYERS.forEach(p => counts[posGroup(p.pos)]++);
@@ -1309,7 +1312,7 @@ function buildCountryGrid() {
     // dominant team color
     const teamCounts = countryTeams[country];
     const dominantTeam = Object.entries(teamCounts).sort((a,b)=>b[1]-a[1])[0][0];
-    const color = TEAM_COLORS[dominantTeam];
+    const color = '#e32947';
 
     const size = Math.round(28 + (count / maxCount) * 48); // 28-76px
 
@@ -1358,7 +1361,7 @@ function buildIntlChart() {
 // ── 6. Avg age by position group ──────────────────────────────
 function buildAgePosChart() {
   const groups = ['Pitcher','Catcher','Infielder','Outfielder'];
-  const colors = { Pitcher:'#c8a44a', Catcher:'#268040', Infielder:'#475da9', Outfielder:'#299598' };
+  const colors = { Pitcher:'#e32947', Catcher:'#e32947', Infielder:'#e32947', Outfielder:'#e32947' };
   const avgAges = groups.map(g => {
     const ages = PLAYERS.filter(p=>posGroup(p.pos)===g && p.age!=null).map(p=>p.age);
     return { label:g, val:parseFloat(avg(ages)), color:colors[g] };
