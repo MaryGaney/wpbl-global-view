@@ -24,6 +24,7 @@
       --la:          #475da9;
       --ny:          #299598;
       --sf:          #8152a0;
+      --tab-bar-h: 42px;
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,6 +35,9 @@
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
+    
+      display: flex;
+      flex-direction: column;
     }
     a { color: inherit; text-decoration: none; }
     img { display: block; }
@@ -131,9 +135,12 @@
     .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* ── PAGE CONTENT ───────────────────────────────────────── */
-    --tab-bar-h: 42px;
+    
     .page-content {
       padding-top: calc(var(--header-h) + 42px);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     /* tab panels */
@@ -1220,7 +1227,7 @@ function buildCountryGrid() {
     // dominant team color
     const teamCounts = countryTeams[country];
     const dominantTeam = Object.entries(teamCounts).sort((a,b)=>b[1]-a[1])[0][0];
-    const color = #e32947;
+    const color = '#e32947';
 
     const size = Math.round(28 + (count / maxCount) * 48); // 28-76px
 
