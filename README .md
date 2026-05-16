@@ -16,10 +16,10 @@ An interactive world map showcasing the hometowns of every player in the Women's
 
 | Team | Color |
 |------|-------|
-| Boston | Red `#268040` |
+| Boston | Green `#268040` |
 | Los Angeles | Blue `#475da9` |
-| New York | Navy `#299598` |
-| San Francisco | Orange `#8152a0` |
+| New York | Teal `#299598` |
+| San Francisco | Purple `#8152a0` |
 
 ## Hosting on GitHub Pages
 
