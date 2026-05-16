@@ -304,7 +304,11 @@
       flex-shrink: 0;
     }
 
-    .bar-label.short { min-width: 60px; }
+    .bar-label.short {
+        width: 70px;
+        min-width: 60px;
+        text-align: left;
+      }
     .bar-label.xshort { min-width: 36px; }
 
     .bar-track {
@@ -686,7 +690,7 @@
         <!-- CHART 1: Age distribution dot plot -->
         <div class="chart-card wide">
           <div class="chart-title">Age Distribution by Team</div>
-          <div class="chart-subtitle">Each dot = one player - hover for name - grouped by team</div>
+          <div class="chart-subtitle">Each dot = one player - hover for name</div>
           <div class="chart-area">
             <div class="dot-rows" id="age-dot-rows"></div>
             <div class="dot-axis" id="age-axis"></div>
@@ -715,7 +719,7 @@
         <!-- CHART 4: Country of origin -->
         <div class="chart-card wide">
           <div class="chart-title">Countries of Origin</div>
-          <div class="chart-subtitle">Block size proportional to player count - color = dominant team</div>
+          <div class="chart-subtitle">Block size proportional to player count</div>
           <div class="chart-area">
             <div class="country-grid" id="country-grid"></div>
           </div>
