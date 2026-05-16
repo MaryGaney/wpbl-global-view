@@ -35,7 +35,6 @@
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
-    
       display: flex;
       flex-direction: column;
     }
@@ -83,6 +82,10 @@
       overflow-x: auto; scrollbar-width: none;
     }
     .map-filter-wrap::-webkit-scrollbar { display: none; }
+    /* FIX 1: hide header filter on mobile always — mobile has its own filter strip */
+    @media (max-width: 639px) {
+      .map-filter-wrap { display: none !important; }
+    }
 
     .team-btn {
       padding: 4px 12px;
@@ -135,7 +138,6 @@
     .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* ── PAGE CONTENT ───────────────────────────────────────── */
-    
     .page-content {
       padding-top: calc(var(--header-h) + 42px);
       flex: 1;
@@ -221,8 +223,10 @@
     .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
     /* ── MOBILE FILTER ──────────────────────────────────────── */
+    /* FIX 1: mobile filter lives inside #panel-map so it hides automatically
+       when the panel is hidden. No JS needed to toggle it. */
     .mobile-filter {
-      display: none;
+      display: none; /* hidden by default; shown only on mobile via media query */
       padding: 8px 16px; gap: 6px;
       overflow-x: auto; scrollbar-width: none;
       background: var(--header-bg);
@@ -235,6 +239,9 @@
       padding: 24px 24px 40px;
       max-width: 1100px;
       margin: 0 auto;
+      /* FIX 3: prevent horizontal scroll */
+      width: 100%;
+      overflow-x: hidden;
     }
 
     .stats-intro {
@@ -262,6 +269,9 @@
       border-radius: var(--radius);
       padding: 20px 20px 16px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      /* FIX 3: contain content */
+      min-width: 0;
+      overflow: hidden;
     }
 
     .chart-card.wide {
@@ -282,6 +292,8 @@
     .chart-area {
       position: relative;
       width: 100%;
+      /* FIX 3: clip any overflow */
+      overflow: hidden;
     }
 
     /* ── BAR CHART ──────────────────────────────────────────── */
@@ -305,10 +317,10 @@
     }
 
     .bar-label.short {
-        width: 70px;
-        min-width: 60px;
-        text-align: left;
-      }
+      width: 70px;
+      min-width: 60px;
+      text-align: left;
+    }
     .bar-label.xshort { min-width: 36px; }
 
     .bar-track {
@@ -318,6 +330,7 @@
       height: 20px;
       position: relative;
       overflow: hidden;
+      min-width: 0;
     }
 
     .bar-fill {
@@ -335,11 +348,11 @@
       white-space: nowrap;
     }
 
-    /* small val shown outside when bar is narrow */
     .bar-val-out {
       font-size: 10px; font-weight: 600;
       color: var(--muted);
       min-width: 28px;
+      flex-shrink: 0;
     }
 
     /* ── DOT PLOT (age distribution) ────────────────────────── */
@@ -373,6 +386,7 @@
       gap: 8px;
     }
 
+    /* FIX 2: shorter label on mobile so more room for dots */
     .dot-row-label {
       font-size: 10px; font-weight: 600;
       color: var(--text);
@@ -382,15 +396,19 @@
 
     .dot-row-label.short { min-width: 56px; }
 
+    /* FIX 2: dot area clips overflow and fills remaining space */
     .dot-area {
       flex: 1;
       height: 22px;
       position: relative;
+      overflow: hidden;   /* clips dots that would overflow */
+      min-width: 0;       /* allows flex child to shrink below content size */
     }
 
+    /* FIX 2: dots use percentage-based left position so they scale with container */
     .dot {
       position: absolute;
-      width: 10px; height: 10px;
+      width: 9px; height: 9px;
       border-radius: 50%;
       top: 50%; transform: translateY(-50%);
       opacity: 0.85;
@@ -578,14 +596,16 @@
         width: min(92vw, 680px); max-height: 88vh;
       }
       .modal-handle { display: none; }
-      .mobile-filter { display: none !important; }
     }
 
     @media (max-width: 639px) {
       header { padding: 0 14px; }
-      .map-filter-wrap { display: none; }
+      /* map-filter-wrap already hidden via the !important rule above */
       .player-count { display: none; }
+
+      /* FIX 1: mobile filter shown only on mobile, inside the map panel */
       .mobile-filter { display: flex; }
+
       .top-banner { padding: 18px 16px; }
       .banner-title { font-size: 20px; }
       .stats-row { gap: 12px; }
@@ -596,7 +616,10 @@
       .chart-grid { grid-template-columns: 1fr; }
       .chart-card.wide { grid-column: 1; }
       .bar-label { min-width: 72px; font-size: 9px; }
-      .dot-row-label { min-width: 72px; font-size: 9px; }
+
+      /* FIX 2: shorter label on mobile for dot plot */
+      .dot-row-label { min-width: 72px; font-size: 9px; text-align: left; }
+
       .tab-btn { padding: 9px 14px; font-size: 11px; letter-spacing: 1px; }
     }
   </style>
@@ -615,6 +638,7 @@
     </div>
   </a>
 
+  <!-- Desktop only: team filter in header -->
   <div class="map-filter-wrap" id="header-filter" role="group" aria-label="Filter by team">
     <button class="team-btn active" data-team="all">All Teams</button>
     <button class="team-btn" data-team="Boston">Boston</button>
@@ -637,7 +661,13 @@
   <!-- ══════════════════ MAP TAB ══════════════════ -->
   <div class="tab-panel active" id="panel-map">
 
-    <!-- mobile filter -->
+    <!--
+      FIX 1: Mobile filter is INSIDE the map panel.
+      It disappears automatically when the panel hides (display:none),
+      so no JS is needed to toggle it. The !important CSS rule above
+      ensures the header filter is never shown on mobile regardless of
+      any inline style set by JS.
+    -->
     <div class="mobile-filter" role="group" aria-label="Filter by team">
       <button class="team-btn active" data-team="all">All</button>
       <button class="team-btn" data-team="Boston">Boston</button>
@@ -690,7 +720,7 @@
         <!-- CHART 1: Age distribution dot plot -->
         <div class="chart-card wide">
           <div class="chart-title">Age Distribution by Team</div>
-          <div class="chart-subtitle">Each dot = one player - hover for name</div>
+          <div class="chart-subtitle">Each dot = one player - hover/tap for name</div>
           <div class="chart-area">
             <div class="dot-rows" id="age-dot-rows"></div>
             <div class="dot-axis" id="age-axis"></div>
@@ -1034,7 +1064,11 @@ document.querySelectorAll('.team-btn').forEach(btn => {
 // ══════════════════════════════════════════════════════════════
 // TABS
 // ══════════════════════════════════════════════════════════════
+// FIX 1: No longer manipulate headerFilter display here at all on mobile.
+// The CSS handles it: map-filter-wrap is always hidden on mobile via !important.
+// On desktop, we still toggle it so it only shows on the map tab.
 const headerFilter = document.getElementById('header-filter');
+const isMobile = () => window.innerWidth < 640;
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1043,10 +1077,22 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById(`panel-${tab}`).classList.add('active');
-    // show/hide map filter in header
-    headerFilter.style.display = tab === 'map' ? 'flex' : 'none';
-    // invalidate map size when switching back
-    if (tab === 'map') setTimeout(() => leafMap.invalidateSize(), 50);
+
+    // Only toggle the header filter on desktop (mobile CSS hides it always)
+    if (!isMobile()) {
+      headerFilter.style.display = tab === 'map' ? 'flex' : 'none';
+    }
+
+    // Invalidate map size when switching back to map tab
+    if (tab === 'map') {
+      setTimeout(() => leafMap.invalidateSize(), 50);
+    }
+
+    // FIX 2: Re-render the age dot plot when switching to stats,
+    // now that the panel is visible and has real dimensions.
+    if (tab === 'stats') {
+      buildAgeDots();
+    }
   });
 });
 
@@ -1077,6 +1123,9 @@ function buildBarChart(containerId, rows, maxVal) {
 }
 
 // ── 1. Age dot plot ───────────────────────────────────────────
+// FIX 2: Use percentage-based positioning so dots always fit inside
+// the container regardless of its rendered width. No more offsetWidth
+// dependency that breaks when the panel is display:none.
 function buildAgeDots() {
   const withAge = PLAYERS.filter(p => p.age != null);
   const minAge = Math.min(...withAge.map(p=>p.age));
@@ -1092,38 +1141,39 @@ function buildAgeDots() {
 
     const rowEl = document.createElement('div');
     rowEl.className = 'dot-row';
-    rowEl.innerHTML = `<div class="dot-row-label">${team}</div><div class="dot-area" id="dot-area-${team.replace(/\s/g,'_')}"></div>`;
+    const teamId = team.replace(/\s/g,'_');
+    rowEl.innerHTML = `<div class="dot-row-label">${team}</div><div class="dot-area" id="dot-area-${teamId}"></div>`;
     rowsEl.appendChild(rowEl);
 
-    // render dots after DOM insertion
-    requestAnimationFrame(() => {
-      const area = document.getElementById(`dot-area-${team.replace(/\s/g,'_')}`);
-      if (!area) return;
-      const areaW = area.offsetWidth || 400;
+    const area = rowEl.querySelector('.dot-area');
 
-      // stack dots at same age
-      const byAge = {};
-      players.forEach(p => {
-        byAge[p.age] = byAge[p.age] || [];
-        byAge[p.age].push(p);
-      });
+    // Group players at same age for slight horizontal stacking
+    const byAge = {};
+    players.forEach(p => {
+      byAge[p.age] = byAge[p.age] || [];
+      byAge[p.age].push(p);
+    });
 
-      Object.entries(byAge).forEach(([age, ps]) => {
-        ps.forEach((p, i) => {
-          const xPct = range > 0 ? ((age - minAge) / range) : 0.5;
-          const xPx = xPct * (areaW - 14); // leave margin
-          const dot = document.createElement('div');
-          dot.className = 'dot';
-          dot.style.left = `${xPx + i * 6}px`; // slight jitter for stacking
-          dot.style.background = color;
-          dot.innerHTML = `<div class="dot-tip">${p.name}, ${p.team} (${p.age})</div>`;
-          area.appendChild(dot);
-        });
+    // FIX 2: position using percentage (left as % string) instead of
+    // computed pixel width. CSS `overflow: hidden` on .dot-area clips
+    // any edge cases. Each stacked dot is offset by a small % step.
+    const DOT_SIZE_PX = 9;       // matches CSS .dot width/height
+    const STACK_OFFSET_PCT = 1.2; // ~1.2% nudge per stacked dot
+
+    Object.entries(byAge).forEach(([age, ps]) => {
+      const xPct = range > 0 ? ((age - minAge) / range) * 96 : 48; // 0–96% leaves a little edge room
+      ps.forEach((p, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.left = `calc(${xPct + i * STACK_OFFSET_PCT}% - ${DOT_SIZE_PX / 2}px)`;
+        dot.style.background = color;
+        dot.innerHTML = `<div class="dot-tip">${p.name}, ${p.team} (${p.age})</div>`;
+        area.appendChild(dot);
       });
     });
   });
 
-  // axis
+  // axis — evenly spaced age labels across the same 0–96% range
   const axisEl = document.getElementById('age-axis');
   axisEl.innerHTML = '';
   const step = 2;
@@ -1171,18 +1221,8 @@ function buildPositionChart() {
 
 // ── 3. Pitchers vs position players by team ───────────────────
 function buildPitcherChart() {
-  const rows = [];
-  TEAMS.forEach(team => {
-    const tp = PLAYERS.filter(p => p.team === team);
-    const pitchers = tp.filter(p => ['RHP','LHP'].includes(p.pos)).length;
-    const pos = tp.length - pitchers;
-    rows.push({ label:team, val:pitchers, total:tp.length, color:TEAM_COLORS[team], labelClass:'short' });
-    rows.push({ label:'', val:pos, total:tp.length, color:TEAM_COLORS[team]+'88', suffix:' pos', labelClass:'short' });
-  });
-
   const el = document.getElementById('pitcher-chart');
   el.innerHTML = '';
-  const max = Math.max(...rows.map(r=>r.val));
 
   TEAMS.forEach(team => {
     const tp = PLAYERS.filter(p=>p.team===team);
@@ -1196,11 +1236,11 @@ function buildPitcherChart() {
     teamRow.innerHTML = `
       <div class="bar-row" style="margin-bottom:3px">
         <div class="bar-label short" style="font-size:10px;font-weight:600">${team}</div>
-        <div style="flex:1;display:flex;border-radius:3px;overflow:hidden;height:20px">
-          <div style="width:${pPct}%;background:${TEAM_COLORS[team]};display:flex;align-items:center;padding:0 5px">
+        <div style="flex:1;display:flex;border-radius:3px;overflow:hidden;height:20px;min-width:0">
+          <div style="width:${pPct}%;background:${TEAM_COLORS[team]};display:flex;align-items:center;padding:0 5px;min-width:0">
             <span style="font-size:9px;color:#fff;font-weight:600;white-space:nowrap">${pitchers} P</span>
           </div>
-          <div style="width:${rPct}%;background:${TEAM_COLORS[team]}55;display:flex;align-items:center;padding:0 5px">
+          <div style="width:${rPct}%;background:${TEAM_COLORS[team]}55;display:flex;align-items:center;padding:0 5px;min-width:0">
             <span style="font-size:9px;color:#444;font-weight:600;white-space:nowrap">${posp} pos</span>
           </div>
         </div>
@@ -1219,7 +1259,6 @@ function buildCountryGrid() {
     countryTeams[p.country][p.team] = (countryTeams[p.country][p.team]||0) + 1;
   });
 
-  // sort by count
   const sorted = Object.entries(countryCount).sort((a,b)=>b[1]-a[1]);
   const maxCount = sorted[0][1];
 
@@ -1227,17 +1266,11 @@ function buildCountryGrid() {
   el.innerHTML = '';
 
   sorted.forEach(([country, count]) => {
-    // dominant team color
-    const teamCounts = countryTeams[country];
-    const dominantTeam = Object.entries(teamCounts).sort((a,b)=>b[1]-a[1])[0][0];
-    const color = '#e32947';
-
-    const size = Math.round(28 + (count / maxCount) * 48); // 28-76px
-
+    const size = Math.round(28 + (count / maxCount) * 48);
     const item = document.createElement('div');
     item.className = 'country-item';
     item.innerHTML = `
-      <div class="country-block" style="width:${size}px;height:${size}px;background:${color};font-size:${Math.max(10,size*0.28)}px">
+      <div class="country-block" style="width:${size}px;height:${size}px;background:#e32947;font-size:${Math.max(10,size*0.28)}px">
         ${count}
       </div>
       <div class="country-name">${country}</div>`;
@@ -1295,12 +1328,17 @@ function buildAgePosChart() {
 // INIT
 // ══════════════════════════════════════════════════════════════
 renderMarkers('all');
-buildAgeDots();
+// Build all charts except the dot plot (stats panel is hidden on load,
+// so dot widths would be wrong). Dot plot is built on first switch to stats tab.
 buildPositionChart();
 buildPitcherChart();
 buildCountryGrid();
 buildIntlChart();
 buildAgePosChart();
+// Build the dot plot lazily (called in tab switch handler above).
+// Also build it now so it's ready if the user starts on a wide screen
+// where the panel might be visible, using a short delay to let layout settle.
+setTimeout(buildAgeDots, 100);
 </script>
 </body>
 </html>
