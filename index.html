@@ -24,6 +24,7 @@
       --la:          #475da9;
       --ny:          #299598;
       --sf:          #8152a0;
+      --tab-bar-h:   42px;
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -131,14 +132,20 @@
     .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* ── PAGE CONTENT ───────────────────────────────────────── */
-    --tab-bar-h: 42px;
     .page-content {
-      padding-top: calc(var(--header-h) + 42px);
+      padding-top: calc(var(--header-h) + var(--tab-bar-h));
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* tab panels */
+    /* tab panels — use flex-grow so the active panel fills remaining space */
     .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .tab-panel.active {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
 
     /* ── BANNER ─────────────────────────────────────────────── */
     .top-banner {
